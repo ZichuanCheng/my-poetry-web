@@ -9,14 +9,25 @@ st.set_page_config(page_title="文墨古韵", page_icon="📜", layout="wide")
 # --- 2. 资源加载 ---
 @st.cache_data 
 def get_base64_img(bin_file):
-    if not os.path.exists(bin_file):
-        return ""
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    ext = bin_file.split('.')[-1].lower()
-    mime = "image/png" if ext == "png" else "image/jpeg"
-    return f"data:{mime};base64,{base64.b64encode(data).decode()}"
+    # 1. 自动获取当前 app.py 所在的真实文件夹路径
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # 2. 拼接图片的绝对路径
+    file_path = os.path.join(current_dir, bin_file)
+    
+    # 调试：如果在本地还是看不见，取消下面这行的注释，网页会显示它在找哪个路径
+    # st.write(f"正在查找路径: {file_path}")
 
+    if not os.path.exists(file_path):
+        return ""
+    
+    with open(file_path, 'rb') as f:
+        data = f.read()
+    
+    # 3. 动态识别后缀名
+    ext = bin_file.split('.')[-1].lower()
+    mime = f"image/{'jpeg' if ext == 'jpg' else ext}"
+    
+    return f"data:{mime};base64,{base64.b64encode(data).decode()}"
 # --- 3. 色彩主题 ---
 THEMES = {
     "默认古风": {"c": ["#8e3e1f", "#f2e6e1", "#3d3b4f", "#e0dcd0"], "bg": "image.png"},
